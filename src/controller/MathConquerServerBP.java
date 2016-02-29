@@ -1,12 +1,15 @@
 package controller;
 
+import java.awt.List;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.JoueurBP;
@@ -76,10 +79,13 @@ public class MathConquerServerBP {
                     if(color == null) {
                         return;                        
                     } else {
-                        synchronized(color) {
-                            if(!playerColors.contains(color)) {
-                                playerColors.add(color);
-                                break;
+                        Set<String> listeCouleursValides = new HashSet<String>(Arrays.asList("RED", "ORANGE", "YELLOW", "GREEN", "BLUE", "PINK", "BLACK"));
+                        if(listeCouleursValides.contains(color.toUpperCase())) {
+                            synchronized(color) {
+                                if(!playerColors.contains(color)) {
+                                    playerColors.add(color);
+                                    break;
+                                }
                             }
                         }
                     }
