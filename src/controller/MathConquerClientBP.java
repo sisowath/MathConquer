@@ -17,6 +17,7 @@ import java.net.Socket;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -104,8 +105,36 @@ public class MathConquerClientBP {
     // mutateur(s)
 
     // autre(s)
+    public String getServerAddress() {
+        String[] possibleAddresses = {"localhost"};
+        return JOptionPane.showInputDialog(
+            null,
+            "Veuillez saisir l'adresse du serveur : ",
+            "Question",
+            JOptionPane.QUESTION_MESSAGE);            
+    }
+    public int getServerPort() {
+        return Integer.parseInt(JOptionPane.showInputDialog(
+            null,
+            "Veuillez saisir le port du serveur : ",
+            "Question",
+            JOptionPane.QUESTION_MESSAGE));
+    }
+    public String getPlayerColor() {
+        String[] couleursPermises = {"RED", "ORANGE", "YELLOW", "GREEN", "BLUE", "PINK", "BLACK"};
+        ImageIcon icone = new ImageIcon("src/images/paletteDeCouleurs.jpg");
+        return JOptionPane.showInputDialog(
+            null, 
+            "Veuillez choisir une couleur : ", 
+            "Question",
+            JOptionPane.OK_OPTION,
+            icone,
+            couleursPermises,
+            couleursPermises[0]
+        ).toString();
+    }
     public void seConnecter() throws IOException {
-        socket = new Socket("localhost", 10300);
+        socket = new Socket(this.getServerAddress(), this.getServerPort());
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream());
         while(true) {
@@ -121,8 +150,8 @@ public class MathConquerClientBP {
         while(true) {
             String messageFromServer = in.readLine();
             System.out.println("Message from server : " + messageFromServer);
-            if(messageFromServer.equalsIgnoreCase("SUBMITCOLOR")) {
-                couleur = JOptionPane.showInputDialog(frame, "Veuillez saisir une couleur : ", "Question", JOptionPane.QUESTION_MESSAGE);
+            if(messageFromServer.equalsIgnoreCase("SUBMITCOLOR")) {                
+                couleur = this.getPlayerColor();
                 couleur = couleur.toUpperCase();
                 out.println(couleur);
                 out.flush();
@@ -145,24 +174,30 @@ public class MathConquerClientBP {
             System.out.println("Message received : [" + n + " :: " + c + " :: " + m + "].");
             switch(c) {
                 case "RED" :
+                case "ROUGE" :
                     buttons[Integer.parseInt(m)].setBackground(Color.RED);
                     break;
                 case "ORANGE" :
                     buttons[Integer.parseInt(m)].setBackground(Color.ORANGE);
                     break;
                 case "YELLOW" :
+                case "JAUNE" :
                     buttons[Integer.parseInt(m)].setBackground(Color.YELLOW);
                     break;
                 case "GREEN" :
+                case "VERT" :
                     buttons[Integer.parseInt(m)].setBackground(Color.GREEN);
                     break;
                 case "BLUE" :
+                case "BLEU" :
                     buttons[Integer.parseInt(m)].setBackground(Color.BLUE);
                     break;
                 case "PINK" :
+                case "ROSE" :
                     buttons[Integer.parseInt(m)].setBackground(Color.PINK);                    
                     break;
                 case "BLACK" :
+                case "NOIR" :
                     buttons[Integer.parseInt(m)].setBackground(Color.BLACK);
                     break;
             }

@@ -56,6 +56,8 @@ public class MathConquerServerBP {
         lblInfo = new JLabel("Le serveur dort...", SwingConstants.CENTER);
         lblInfo.setFont(new Font("ARIAL", Font.BOLD, 13));      
         lblInfo.setForeground(Color.ORANGE);
+        lblInfo.setOpaque(true);
+        lblInfo.setBackground(Color.WHITE);
         JMenuBar mBar = new JMenuBar();
         JMenu mGestion = new JMenu("Gestion");
         JMenuItem miDemarrer = new JMenuItem("Démarrer");
@@ -148,7 +150,7 @@ public class MathConquerServerBP {
                     if(color == null) {
                         return;                        
                     } else {
-                        Set<String> listeCouleursValides = new HashSet<String>(Arrays.asList("RED", "ORANGE", "YELLOW", "GREEN", "BLUE", "PINK", "BLACK"));
+                        Set<String> listeCouleursValides = new HashSet<String>(Arrays.asList("RED", "ROUGE", "ORANGE", "YELLOW", "JAUNE", "GREEN", "VERT", "BLUE", "BLEU", "PINK", "ROSE", "BLACK", "NOIR"));
                         if(listeCouleursValides.contains(color.toUpperCase())) {
                             synchronized(color) {
                                 if(!playerColors.contains(color)) {
