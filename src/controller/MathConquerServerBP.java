@@ -1,6 +1,12 @@
 package controller;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,6 +18,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import model.JoueurBP;
 
 public class MathConquerServerBP {
@@ -19,12 +33,72 @@ public class MathConquerServerBP {
     static HashSet<String> playerNames;
     static HashSet<String> playerColors;
     static HashSet<PrintWriter> writers;
+    ServerSocket serverSocket;
+    int numeroPort;
+    JLabel lblInfo;
         // methode(s)
     // constructeur(s)
-    public MathConquerServerBP() {
+    public MathConquerServerBP(int portNumber) throws IOException {        
+        this.numeroPort = portNumber;
         this.playerNames = new HashSet<String>();
         this.playerColors = new HashSet<String>();
         this.writers = new HashSet<PrintWriter>();
+        JFrame frame = new JFrame("Math & Conquer - Server");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(300, 330);
+        frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
+        JPanel panel = new JPanel();
+        ImageIcon icon = new ImageIcon("src/images/server-icon.png");
+        JLabel thumb = new JLabel();
+        thumb.setIcon(icon);
+        panel.add(thumb);        
+        lblInfo = new JLabel("Le serveur dort...", SwingConstants.CENTER);
+        lblInfo.setFont(new Font("ARIAL", Font.BOLD, 13));      
+        lblInfo.setForeground(Color.ORANGE);
+        JMenuBar mBar = new JMenuBar();
+        JMenu mGestion = new JMenu("Gestion");
+        JMenuItem miDemarrer = new JMenuItem("Démarrer");
+        miDemarrer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {                
+                try {
+                    serverSocket = new ServerSocket(numeroPort);                    
+                    lblInfo.setText("Le serveur est a l'ecoute sur le port #" + serverSocket.getLocalPort());
+                    System.out.println("Le serveur est a l'ecoute sur le port #" + serverSocket.getLocalPort());
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            while(true) {
+                                try {
+                                    new EcouteurJoueursBP(serverSocket.accept()).start();
+                                } catch (IOException ex) {
+                                    Logger.getLogger(MathConquerServerBP.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                        }                        
+                    }).start();
+                } catch (IOException ex) {
+                    Logger.getLogger(MathConquerServerBP.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }            
+        });
+        JMenuItem miFermer = new JMenuItem("Fermer");
+        miFermer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }            
+        });
+        mGestion.add(miDemarrer);
+        mGestion.add(miFermer);
+        mBar.add(mGestion);
+        frame.add(lblInfo, BorderLayout.NORTH);
+        frame.add(panel, BorderLayout.CENTER);
+        frame.setResizable(false);
+        frame.setJMenuBar(mBar);
+        frame.revalidate();
+        frame.repaint();
     }
     // accesseur(s)
 
@@ -32,12 +106,7 @@ public class MathConquerServerBP {
 
     // autre(s)
     public static void main(String args[]) throws IOException {
-        MathConquerServerBP mcs = new MathConquerServerBP();
-        ServerSocket serverSocket = new ServerSocket(10300);
-        System.out.println("Le serveur est a l'ecoute sur le port #" + serverSocket.getLocalPort());
-        while(true) {
-            new EcouteurJoueursBP(serverSocket.accept()).start();
-        }
+        MathConquerServerBP mcs = new MathConquerServerBP(10300);                
     }
     // classe(s) interne(s)
     static class EcouteurJoueursBP extends Thread {
