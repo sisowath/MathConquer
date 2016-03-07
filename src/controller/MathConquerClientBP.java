@@ -95,14 +95,7 @@ public class MathConquerClientBP {
             panel.add(buttons[i]);
         }
         panel.setVisible(false);
-        ws = new WaitingScreen();
-        frame.add(ws, BorderLayout.CENTER);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ws.run();
-            }
-        });
+        ecranAttente();
         model = new DefaultListModel();
         JList listeDesJoueurs = new JList(model);        
         JScrollPane pane = new JScrollPane(listeDesJoueurs);
@@ -126,6 +119,19 @@ public class MathConquerClientBP {
     // mutateur(s)
 
     // autre(s)
+    public void ecranAttente(){
+        frame.remove(panel);
+        ws = new WaitingScreen();
+        frame.add(ws, BorderLayout.CENTER);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ws.run();
+            }
+        });
+        frame.revalidate();
+        frame.repaint();
+    }
     public String getServerAddress() {
         String[] possibleAddresses = {"localhost"};
         return JOptionPane.showInputDialog(
@@ -197,6 +203,9 @@ public class MathConquerClientBP {
         while(true) {
             System.out.println("Waiting for server message...");
             String n = in.readLine();
+            if(n.equalsIgnoreCase("WAITING")) {
+                ecranAttente();
+            }
             String c = in.readLine();
             String m = in.readLine();
             System.out.println("Message received : [" + n + " :: " + c + " :: " + m + "].");
@@ -204,29 +213,36 @@ public class MathConquerClientBP {
                 case "RED" :
                 case "ROUGE" :
                     buttons[Integer.parseInt(m)].setBackground(Color.RED);
+                    buttons[Integer.parseInt(m)].setEnabled(false);
                     break;
                 case "ORANGE" :
                     buttons[Integer.parseInt(m)].setBackground(Color.ORANGE);
+                    buttons[Integer.parseInt(m)].setEnabled(false);
                     break;
                 case "YELLOW" :
                 case "JAUNE" :
                     buttons[Integer.parseInt(m)].setBackground(Color.YELLOW);
+                    buttons[Integer.parseInt(m)].setEnabled(false);
                     break;
                 case "GREEN" :
                 case "VERT" :
                     buttons[Integer.parseInt(m)].setBackground(Color.GREEN);
+                    buttons[Integer.parseInt(m)].setEnabled(false);
                     break;
                 case "BLUE" :
                 case "BLEU" :
                     buttons[Integer.parseInt(m)].setBackground(Color.BLUE);
+                    buttons[Integer.parseInt(m)].setEnabled(false);
                     break;
                 case "PINK" :
                 case "ROSE" :
-                    buttons[Integer.parseInt(m)].setBackground(Color.PINK);                    
+                    buttons[Integer.parseInt(m)].setBackground(Color.PINK);
+                    buttons[Integer.parseInt(m)].setEnabled(false);
                     break;
                 case "BLACK" :
                 case "NOIR" :
                     buttons[Integer.parseInt(m)].setBackground(Color.BLACK);
+                    buttons[Integer.parseInt(m)].setEnabled(false);
                     break;
             }
             buttons[Integer.parseInt(m)].setFont(new Font("ARIAL", Font.BOLD, 14));

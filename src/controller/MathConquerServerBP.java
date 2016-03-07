@@ -71,9 +71,18 @@ public class MathConquerServerBP {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
+                            int compteur = 0;
                             while(true) {
                                 try {
-                                    new EcouteurJoueursBP(serverSocket.accept()).start();
+                                    if (compteur < 2)
+                                    {
+                                        new EcouteurJoueursBP(serverSocket.accept()).start();
+                                        compteur++;                                        
+                                    }
+                                    else
+                                    {
+                                        compteur = 0;
+                                    }
                                 } catch (IOException ex) {
                                     Logger.getLogger(MathConquerServerBP.class.getName()).log(Level.SEVERE, null, ex);
                                 }
@@ -173,29 +182,46 @@ public class MathConquerServerBP {
                     }                    
                 }    
                 for(PrintWriter p : writers) {
-                    if(playerNames.size() == 4) {
+                    if(playerNames.size() == 2) {
                         p.println("FINISHAPPEND");
                         p.flush();
                     }
                 }
+                int partieTerminer = 0;
                 while(true) {
-                    String n = in.readLine();
-                    String c = in.readLine();
-                    String move = in.readLine();
-                    System.out.println("Message from client : " + n + " :: " + c + " :: " + move + "].");
-                    if(n == null || c == null || move == null) {
-                        return;
-                    } else {
-                        for(PrintWriter p : writers) {
-                            p.println(n);
-                            p.flush();
-                            p.println(c);
-                            p.flush();
-                            p.println(move);
-                            p.flush();
-                        }
+                        partieTerminer++;
+                        String n = in.readLine();
+                        String c = in.readLine();
+                        String move = in.readLine();
+                        System.out.println("Message from client : " + n + " :: " + c + " :: " + move + "].");                    
+                        if(n == null || c == null || move == null) {
+                            return;
+                        } else {
+                            if(partieTerminer == 25) {
+                               for(PrintWriter p : writers) {
+                                    p.println("WAITING");
+                                    p.flush();                                
+                                }
+                            } else {
+                                for(PrintWriter p : writers) {
+                                    p.println(n);
+                                    p.flush();
+                                    p.println(c);
+                                    p.flush();
+                                    p.println(move);
+                                    p.flush();
+                                }
+                            }
+                        }                        
+                    }/*
+                    else
+                    {
+                        //playerNames.remove(name);
+                        //playerColors.remove(color);
+                        writers.remove(out);
+                        socket.close();
                     }
-                }
+                }*/
             } catch (IOException ex) {
                 Logger.getLogger(MathConquerServerBP.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
