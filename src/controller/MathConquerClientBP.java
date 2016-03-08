@@ -2,6 +2,7 @@ package controller;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -17,11 +18,14 @@ import java.net.Socket;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 public class MathConquerClientBP {
         // attribut(s)
@@ -34,6 +38,8 @@ public class MathConquerClientBP {
     PrintWriter out;
     String identifiant;
     String couleur;
+    DefaultListModel model;
+    int compteurJoueurs = 0;
         // methode(s)
     // constructeur(s)
     public MathConquerClientBP() {
@@ -97,6 +103,21 @@ public class MathConquerClientBP {
                 ws.run();
             }
         });
+        model = new DefaultListModel();
+        JList listeDesJoueurs = new JList(model);        
+        JScrollPane pane = new JScrollPane(listeDesJoueurs);
+        JPanel playerPanel = new JPanel(new BorderLayout());
+        playerPanel.add(pane);
+        playerPanel.setPreferredSize(new Dimension(100,100));
+        frame.add(playerPanel, BorderLayout.NORTH);
+        /*
+        JFrame playerFrame = new JFrame("Liste des joueurs");
+        playerFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        playerFrame.setSize(300, 500);
+        playerFrame.setVisible(true);
+        playerFrame.setLocation(00, 300);
+        playerFrame.add(playerPanel); 
+        */
         frame.revalidate();
         frame.repaint();
     }
@@ -134,7 +155,7 @@ public class MathConquerClientBP {
         ).toString();
     }
     public void seConnecter() throws IOException {
-        socket = new Socket(this.getServerAddress(), this.getServerPort());
+        socket = new Socket(this.getServerAddress(), 10300/*this.getServerPort()*/);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream());
         while(true) {
@@ -143,7 +164,7 @@ public class MathConquerClientBP {
             if(messageFromServer.equalsIgnoreCase("SUBMITNAME")) {
                 out.println(identifiant = JOptionPane.showInputDialog(null, "Veuillez saisir un identifiant : ", "Question", JOptionPane.QUESTION_MESSAGE));
                 out.flush();
-            } else if(messageFromServer.equalsIgnoreCase("NAMEACCEPTED")) {
+            } else if(messageFromServer.equalsIgnoreCase("NAMEACCEPTED")) { 
                 break;
             }
         }
@@ -155,7 +176,14 @@ public class MathConquerClientBP {
                 couleur = couleur.toUpperCase();
                 out.println(couleur);
                 out.flush();
-            } else if(messageFromServer.equalsIgnoreCase("COLORACCEPTED")) {
+            } else if(messageFromServer.equalsIgnoreCase("COLORACCEPTED")) {                
+                
+            } else if(messageFromServer.equalsIgnoreCase("APPENDPLAYERS")) {
+                String temp = in.readLine();
+                if(!this.model.contains(temp)) {
+                    this.model.addElement(temp);
+                }
+            } else if(messageFromServer.equalsIgnoreCase("FINISHAPPEND")) {
                 break;
             }
         }

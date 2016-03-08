@@ -142,7 +142,7 @@ public class MathConquerServerBP {
                     }
                 }
                 out.println("NAMEACCEPTED");
-                out.flush();
+                out.flush();                                               
                 while(true) {
                     out.println("SUBMITCOLOR");
                     out.flush();
@@ -164,6 +164,20 @@ public class MathConquerServerBP {
                 out.println("COLORACCEPTED");
                 out.flush();
                 writers.add(out);
+                for(PrintWriter p : writers) {                    
+                    for(String name : playerNames) {
+                        p.println("APPENDPLAYERS");
+                        p.flush();
+                        p.println(name);
+                        p.flush();
+                    }                    
+                }    
+                for(PrintWriter p : writers) {
+                    if(playerNames.size() == 4) {
+                        p.println("FINISHAPPEND");
+                        p.flush();
+                    }
+                }
                 while(true) {
                     String n = in.readLine();
                     String c = in.readLine();
