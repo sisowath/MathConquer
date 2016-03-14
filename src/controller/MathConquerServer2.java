@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashSet;
 
 /**
  *
@@ -34,8 +35,20 @@ public class MathConquerServer2 {
     }
 }
 class Game {
-    private String[] board = new String[25];
-
+    private static int CASES = 5;
+    private String[] board = new String[CASES];
+    private HashSet<PrintWriter> writer = new HashSet<PrintWriter>();
+    
+    public boolean isWinner() {
+        for (String s:board)
+        {
+            if (s == null)
+            {
+                return false;
+            }            
+        }
+        return true;
+    }
     class Player extends Thread {
         String color;           
         Socket socket;
@@ -48,7 +61,8 @@ class Game {
             try {
                 input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 output = new PrintWriter(socket.getOutputStream(), true);
-                output.println("BONJOUR " + color);
+                writer.add(output);
+                output.println("WELCOME " + color);
                 output.println("MESSAGE En attente d'un joueur");
             }
             catch (IOException e)
@@ -57,17 +71,63 @@ class Game {
             }
         }
         public void run() {
-            try {
+            try {                
                 output.println("MESSAGE Partie commencée");
+                output.println("READY");
                 while (true) {
-                    String n = input.readLine();
-                    String c = input.readLine();
-                    String move = input.readLine();
-                    System.out.println("Message from client : " + c + " :: " + move + "].");                    
-                    if(n == null || c == null || move == null) {
+                    String command = input.readLine();
+                    if (command.startsWith("MOVE"))
+                    {
+                        String c = input.readLine(); 
+                        String m = input.readLine();
+                        System.out.println("Message received : [" + c + " :: " + m + "].");               
+                        if(c == null || m == null) {
+                            return;
+                        }
+                        board[Integer.parseInt(m)] = c;
+                        for (PrintWriter p:writer)
+                        {
+                            p.println("MOVE");
+                            p.flush();
+                            p.println(c);
+                            p.flush();
+                            p.println(m);
+                            p.flush();
+                        }
+                        if (isWinner())
+                        {
+                            int red = 0, yellow = 0;                            
+                            for (String s:board)
+                            {
+                                switch (s)
+                                {
+                                    case "RED" : red++;
+                                                 break;
+                                    case "YELLOW" : yellow++;
+                                                    break;
+                                }
+                            }
+                            for (PrintWriter p:writer)
+                            {
+                                p.println("WINNER");
+                                p.flush();
+                                if (red > yellow)
+                                {
+                                    p.println("RED");
+                                    p.flush();
+                                } else if (red == yellow) {
+                                    p.println("TIE");
+                                    p.flush();
+                                } else {
+                                    p.println("YELLOW");
+                                    p.flush();
+                                }
+                            }
+                        }
+                    } else if (command.startsWith("QUIT"))
+                    {
                         return;
                     }
-                    board[Integer.parseInt(move)] = c;
                 }
             } catch (IOException e) {
                 System.out.println("Joueur déconnecté: " + e);
