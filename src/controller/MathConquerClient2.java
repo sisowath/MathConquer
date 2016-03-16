@@ -13,6 +13,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,12 +23,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 public class MathConquerClient2 {
     private JFrame frame = new JFrame("Math Conquer");
     private JPanel panel;
     private WaitingScreen ws;
     private JLabel messageLabel = new JLabel("");
+    private JLabel lblCountDown = new JLabel("Time : ", SwingConstants.CENTER);
     private JButton buttons[];
     private Socket socket;
     private String couleur;
@@ -93,7 +97,7 @@ public class MathConquerClient2 {
     }
     
     public void play() throws Exception {        
-        try {
+        try {            
             String reponse ,c, m;
             reponse = in.readLine();
             if (reponse.startsWith("WELCOME")) {
@@ -105,13 +109,20 @@ public class MathConquerClient2 {
                 if (reponse.startsWith("READY")){
                     frame.remove(ws);
                     frame.add(panel, BorderLayout.CENTER);
+                    lblCountDown.setFont(new Font("ARIAL", Font.BOLD, 20));
+                    lblCountDown.setOpaque(true);
+                    lblCountDown.setBackground(Color.WHITE);
+                    lblCountDown.setForeground(Color.BLUE);
+                    frame.add(lblCountDown, BorderLayout.NORTH);
                     frame.setSize(475, 325);
                     panel.setVisible(true);
                     frame.setTitle("Math & Conquer - " + couleur);
                     frame.revalidate();
                     frame.repaint();
-                }
-                if (reponse.startsWith("MOVE")){
+                } else if(reponse.startsWith("TIME")) {
+                    int temp = Integer.parseInt( in.readLine() );
+                    lblCountDown.setText("Time : " + temp);
+                }else if (reponse.startsWith("MOVE")){
                     c = in.readLine(); 
                     m = in.readLine();
                     System.out.println("Message received : [" + c + " :: " + m + "].");

@@ -5,6 +5,9 @@
  */
 package controller;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +15,13 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
-
+import java.util.Timer;
+import java.util.TimerTask;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 /**
  *
  * @author usager
@@ -20,6 +29,24 @@ import java.util.HashSet;
 public class MathConquerServer2 {
     public static void main(String[] args) throws Exception {
         ServerSocket listener = new ServerSocket(10000);
+        JLabel lbl = new JLabel("Le serveur est à l'écoute sur le port #" + listener.getLocalPort(), SwingConstants.CENTER);
+        lbl.setFont(new Font("ARIAL", Font.BOLD, 14));
+        lbl.setOpaque(true);
+        lbl.setBackground(Color.WHITE);
+        lbl.setForeground(Color.ORANGE);
+        JFrame frame = new JFrame("Math & Conquer - Server");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(340, 360);
+        frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+        ImageIcon icon = new ImageIcon("src/images/server-icon.png");
+        JPanel panel = new JPanel();
+        panel.add(new JLabel(icon));
+        frame.add(panel);
+        frame.add(lbl, BorderLayout.NORTH);        
+        frame.revalidate();
+        frame.repaint();
         System.out.println("MathConquer is up!");
         try {
             while(true) {
@@ -54,7 +81,8 @@ class Game {
         Socket socket;
         BufferedReader input;
         PrintWriter output;
-
+        int nbrSecondes = 120;// 2 minutes
+        
         public Player(Socket socket, String color) {
             this.socket = socket;
             this.color = color;
@@ -73,8 +101,47 @@ class Game {
         public void run() {
             try {                
                 output.println("MESSAGE Partie commencée");
-                output.println("READY");
-                while (true) {
+                output.println("READY");                
+                Timer timer = new Timer();
+                timer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        if(nbrSecondes == 0) {
+                            timer.cancel();
+                            int red = 0, yellow = 0;                            
+                            for (String s:board) {
+                                switch (s) {
+                                    case "RED" : 
+                                        red++;
+                                        break;
+                                    case "YELLOW" : 
+                                        yellow++;
+                                        break;
+                                }
+                            }
+                            for (PrintWriter p:writer) {
+                                p.println("WINNER");
+                                p.flush();
+                                if (red > yellow) {
+                                    p.println("RED");
+                                    p.flush();
+                                } else if (red == yellow) {
+                                    p.println("TIE");
+                                    p.flush();
+                                } else {
+                                    p.println("YELLOW");
+                                    p.flush();
+                                }
+                            }                        
+                        } else {
+                            output.println("TIME");
+                            output.flush();
+                            output.println(String.valueOf(--nbrSecondes));
+                            output.flush();
+                        }   
+                    }
+                }, 1000, 1000);
+                while (true) {                                       
                     String command = input.readLine();
                     if (command.startsWith("MOVE"))
                     {
@@ -123,7 +190,7 @@ class Game {
                                     p.flush();
                                 }
                             }
-                        }
+                        }                        
                     } else if (command.startsWith("QUIT"))
                     {
                         return;
