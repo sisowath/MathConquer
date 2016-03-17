@@ -115,7 +115,8 @@ public class MathConquerClient2 {
                     lblCountDown.setBackground(Color.WHITE);
                     lblCountDown.setForeground(Color.BLUE);
                     frame.add(lblCountDown, BorderLayout.NORTH);
-                    frame.setSize(475, 325);
+                    //frame.setSize(475, 325);
+                    frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
                     panel.setVisible(true);
                     frame.setTitle("Math & Conquer - " + couleur);
                     frame.revalidate();
@@ -212,7 +213,7 @@ public class MathConquerClient2 {
     public void ecranGagnant(){
         frame.remove(panel);
         winnerScreen = new MathConquerClient2.WinnerScreen();
-        frame.setSize(400, 300);
+        frame.setSize(400, 400);
         frame.setLocationRelativeTo(null);
         frame.add(winnerScreen, BorderLayout.CENTER);
         new Thread(new Runnable() {
@@ -227,7 +228,7 @@ public class MathConquerClient2 {
     public void ecranPerdant(){
         frame.remove(panel);
         loserScreen = new MathConquerClient2.LoserScreen();
-        frame.setSize(500, 300);
+        frame.setSize(500, 400);
         frame.setLocationRelativeTo(null);
         frame.add(loserScreen, BorderLayout.CENTER);
         new Thread(new Runnable() {

@@ -64,7 +64,7 @@ public class MathConquerServer2 {
     }
 }
 class Game {
-    private static int CASES = 5;
+    private static int CASES = 25;
     private String[] board = new String[CASES];
     private HashSet<PrintWriter> writer = new HashSet<PrintWriter>();
     
