@@ -22,6 +22,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
 /**
  *
  * @author usager
@@ -32,6 +33,7 @@ public class MathConquerServer2 {
         JLabel lbl = new JLabel("Le serveur est à l'écoute sur le port #" + listener.getLocalPort(), SwingConstants.CENTER);
         lbl.setFont(new Font("ARIAL", Font.BOLD, 14));
         lbl.setOpaque(true);
+        lbl.setBorder(new LineBorder(Color.BLUE, 2));
         lbl.setBackground(Color.WHITE);
         lbl.setForeground(Color.ORANGE);
         JFrame frame = new JFrame("Math & Conquer - Server");

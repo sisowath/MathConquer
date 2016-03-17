@@ -13,8 +13,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,12 +22,15 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
 
 public class MathConquerClient2 {
     private JFrame frame = new JFrame("Math Conquer");
     private JPanel panel;
     private WaitingScreen ws;
-    private JLabel messageLabel = new JLabel("");
+    private WinnerScreen winnerScreen;
+    private LoserScreen loserScreen;
+    private JLabel messageLabel = new JLabel("", SwingConstants.CENTER);
     private JLabel lblCountDown = new JLabel("Time : ", SwingConstants.CENTER);
     private JButton buttons[];
     private Socket socket;
@@ -37,7 +38,7 @@ public class MathConquerClient2 {
     private BufferedReader in;
     private PrintWriter out;
     private static int PORT = 10000;
-    private static int CASES = 5;
+    private static int CASES = 25;
     
     public MathConquerClient2(String serverAddress) throws Exception {
         socket = new Socket(serverAddress, PORT);
@@ -168,13 +169,20 @@ public class MathConquerClient2 {
                     c = in.readLine();
                     if (c.equals(couleur)) {
                         messageLabel.setText("Vous avez gagné");
+                        ecranGagnant();
                     } else if (c.equals("TIE")) {
                         messageLabel.setText("Partie nulle");
                     } else {
                         messageLabel.setText("Vous avez perdu");
+                        ecranPerdant();
                     }
                     break;
                 } else if (reponse.startsWith("MESSAGE")){
+                    messageLabel.setFont(new Font("ARIAL", Font.BOLD, 20));
+                    messageLabel.setBorder(new LineBorder(Color.YELLOW, 2));
+                    messageLabel.setOpaque(true);
+                    messageLabel.setBackground(Color.WHITE);
+                    messageLabel.setForeground(Color.ORANGE);
                     messageLabel.setText(reponse.substring(8));
                 }                
             }
@@ -201,12 +209,42 @@ public class MathConquerClient2 {
         frame.revalidate();
         frame.repaint();
     }
+    public void ecranGagnant(){
+        frame.remove(panel);
+        winnerScreen = new MathConquerClient2.WinnerScreen();
+        frame.setSize(400, 300);
+        frame.setLocationRelativeTo(null);
+        frame.add(winnerScreen, BorderLayout.CENTER);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                winnerScreen.run();
+            }
+        });
+        frame.revalidate();
+        frame.repaint();
+    }
+    public void ecranPerdant(){
+        frame.remove(panel);
+        loserScreen = new MathConquerClient2.LoserScreen();
+        frame.setSize(500, 300);
+        frame.setLocationRelativeTo(null);
+        frame.add(loserScreen, BorderLayout.CENTER);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                loserScreen.run();
+            }
+        });
+        frame.revalidate();
+        frame.repaint();
+    }
     public static void main(String[] args) throws Exception {
         while(true) {
             String serverAddress = (args.length == 0) ? "localhost" : args[1];
             MathConquerClient2 client = new MathConquerClient2(serverAddress);
             client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            client.frame.setSize(400, 300);
+            client.frame.setSize(400, 330);
             client.frame.setVisible(true);
             client.frame.setLocationRelativeTo(null);
             client.play();
@@ -237,5 +275,51 @@ public class MathConquerClient2 {
                 }
             }
         }        
+    }
+    class WinnerScreen extends JPanel implements Runnable {
+        Image image;
+        public WinnerScreen() {
+            image = Toolkit.getDefaultToolkit().createImage("src/images/winner.gif");
+        }
+        @Override
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (image != null) {
+                g.drawImage(image, 0, 0, this);
+            }
+        }
+        public void run() {
+            while(true) {
+                try {
+                    this.repaint();
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MathConquerClientBP.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        } 
+    }
+    class LoserScreen extends JPanel implements Runnable {
+        Image image;
+        public LoserScreen() {
+            image = Toolkit.getDefaultToolkit().createImage("src/images/game-over.gif");
+        }
+        @Override
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (image != null) {
+                g.drawImage(image, 0, 0, this);
+            }
+        }
+        public void run() {
+            while(true) {
+                try {
+                    this.repaint();
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MathConquerClientBP.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        } 
     }
 }
